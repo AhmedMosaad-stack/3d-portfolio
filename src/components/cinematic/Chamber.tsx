@@ -18,7 +18,10 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { setChapter } from "@/lib/corridor";
 import { useCinema } from "@/hooks/useCinema";
 
-type Move = "push" | "crane" | "pullback";
+// "none" = no camera move at all (content sits at rest); used by About, whose
+// arrival is the hero→about crossfade, so a crane on top would be a second,
+// competing camera move. Chapter tracking still runs.
+type Move = "push" | "crane" | "pullback" | "none";
 
 type Props = {
   children: ReactNode;
@@ -62,26 +65,28 @@ export default function Chamber({ children, chapter, move = "push", depth = 1 }:
       const wrap = wrapRef.current;
       if (!cinema || !inner || !wrap) return;
 
-      gsap.fromTo(
-        inner,
-        { ...arrive(move, depth), transformPerspective: 1600 },
-        {
-          ...REST,
-          ease: "none",
-          scrollTrigger: { trigger: wrap, start: "top 96%", end: "top 44%", scrub: 1 },
-        }
-      );
+      if (move !== "none") {
+        gsap.fromTo(
+          inner,
+          { ...arrive(move, depth), transformPerspective: 1600 },
+          {
+            ...REST,
+            ease: "none",
+            scrollTrigger: { trigger: wrap, start: "top 96%", end: "top 44%", scrub: 1 },
+          }
+        );
 
-      gsap.fromTo(
-        inner,
-        { ...REST },
-        {
-          ...depart(move, depth),
-          transformPerspective: 1600,
-          ease: "none",
-          scrollTrigger: { trigger: wrap, start: "bottom 62%", end: "bottom 4%", scrub: 1 },
-        }
-      );
+        gsap.fromTo(
+          inner,
+          { ...REST },
+          {
+            ...depart(move, depth),
+            transformPerspective: 1600,
+            ease: "none",
+            scrollTrigger: { trigger: wrap, start: "bottom 62%", end: "bottom 4%", scrub: 1 },
+          }
+        );
+      }
 
       gsap.timeline({
         scrollTrigger: {

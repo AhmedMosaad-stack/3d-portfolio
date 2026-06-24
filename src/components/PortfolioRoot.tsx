@@ -53,7 +53,9 @@ export default function PortfolioRoot() {
         <HeroGate />
 
         <div className={cinema ? LANE : undefined}>
-          <Chamber chapter={1} move="crane">
+          {/* move="none": About's arrival IS the hero→about crossfade (HeroGate),
+              so no crane here — just chapter tracking + its own content reveal. */}
+          <Chamber chapter={1} move="none">
             <About />
           </Chamber>
         </div>

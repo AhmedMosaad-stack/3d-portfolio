@@ -80,42 +80,44 @@ export default function HeroGate() {
         onToggle: (self) => setNear(self.isActive),
       });
 
-      // Pin the gate and scrub the wall dissolve across ~0.9 viewport — short, so
-      // you are not scrolling through darkness to get in.
-      ScrollTrigger.create({
-        trigger: pin,
-        start: "top top",
-        end: "+=90%",
-        pin: true,
-        pinType: "transform", // pin via transform, not fixed → no CLS during scroll
-        anticipatePin: 1,
-        scrub: 1,
-        onUpdate: (self) => {
-          corridor.gate = self.progress;
+      // The corridor does NOT hand off by scrolling down to About. It ENDS into
+      // it: the gate stays pinned, the wall dissolves and the camera flies the
+      // tunnel (first ~60%), then the hero dissolves out while About cross-fades
+      // IN over the dark — same viewport, no downward move. pinSpacing:false lets
+      // About (the next flow section) ride up over the pinned, fading gate so the
+      // two overlap for a true crossfade; at release About is already in place,
+      // so there is no seam.
+      const about = document.getElementById("about");
+      if (about) gsap.set(about, { autoAlpha: 0 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pin,
+          start: "top top",
+          end: "+=140%",
+          pin: true,
+          pinSpacing: false,
+          pinType: "transform", // pin via transform, not fixed → no CLS during scroll
+          anticipatePin: 1,
+          scrub: 1,
         },
       });
 
-      // Overlay blooms forward + fades as the wall dissolves.
-      gsap.fromTo(
+      // Wall dissolve + tunnel fly-through.
+      tl.fromTo(corridor, { gate: 0 }, { gate: 1, ease: "none", duration: 0.6 }, 0);
+      // Hero title blooms forward + fades as the wall opens.
+      tl.fromTo(
         contentRef.current,
         { scale: 1, autoAlpha: 1 },
-        {
-          scale: 1.4,
-          autoAlpha: 0,
-          ease: "none",
-          scrollTrigger: { trigger: pin, start: "top top", end: "+=60%", scrub: true },
-        }
+        { scale: 1.4, autoAlpha: 0, ease: "none", duration: 0.5 },
+        0
       );
-      gsap.fromTo(
-        cueRef.current,
-        { y: 0 },
-        {
-          y: -24,
-          autoAlpha: 0,
-          ease: "none",
-          scrollTrigger: { trigger: pin, start: "top top", end: "+=18%", scrub: true },
-        }
-      );
+      // Scroll cue leaves almost immediately.
+      tl.fromTo(cueRef.current, { y: 0, autoAlpha: 1 }, { y: -24, autoAlpha: 0, ease: "none", duration: 0.12 }, 0);
+      // Crossfade INTO About on the tail — hero gone, About resolves over the dark.
+      if (about) {
+        tl.fromTo(about, { autoAlpha: 0 }, { autoAlpha: 1, ease: "none", duration: 0.32 }, 0.62);
+      }
 
       return () => off();
     },
