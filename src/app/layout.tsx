@@ -25,7 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE_URL = "https://mosaad-fullstack.vercel.app";
+const SITE_URL = "https://mosaad-portfolio-one.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
