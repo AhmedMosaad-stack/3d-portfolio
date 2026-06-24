@@ -61,10 +61,11 @@ body {
   }
 }
 
-/* The cinematic loader belongs to the cinematic (desktop, fine-pointer, motion-OK)
-   experience. On the flat path it's an opaque overlay that needlessly delays LCP,
-   so hide it there at first paint — those users get content immediately. */
-@media (max-width: 1023px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+/* The loader runs on mobile too now (it's only a DOM transform, no Canvas), so
+   the fly-through entrance is shared. Reduced-motion is the one exception: those
+   users get content immediately with no overlay (the timeline also finishes
+   instantly via matchMedia), so there's no LCP-delaying wall to sit through. */
+@media (prefers-reduced-motion: reduce) {
   .preloader-overlay {
     display: none !important;
   }

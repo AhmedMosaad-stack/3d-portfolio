@@ -1,9 +1,14 @@
 "use client";
 
 // Intro loader. A real progress bar locked to the percentage counter, with
-// status tags that tick over as it fills. At 100% it does NOT wipe up — it
-// fades and hands off to the camera (markEntered), so the gate dollies you into
-// the site. That handoff is the entrance.
+// status tags that tick over as it fills. At 100% it does NOT wipe up or merely
+// fade — the loader wall scales UP past the camera and dissolves while the gate
+// fires its dolly-in (markEntered → corridor.intro), so you punch THROUGH the
+// loader into the corridor. That fly-through is the entrance.
+//
+// Runs on mobile too (coarse pointer), just shorter, since it's only a DOM
+// transform — no Canvas, negligible cost. Reduced-motion users skip it (CSS
+// hides the overlay; the timeline finishes instantly).
 
 import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -28,13 +33,18 @@ export default function Preloader() {
   useGSAP(
     () => {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
 
       const finish = () => {
+        // Hand off to the camera FIRST so the gate's intro dolly runs underneath
+        // as the loader wall rushes past — the two read as one move through the
+        // wall, not a fade then a dolly.
         markEntered();
         gsap.to(ref.current, {
+          scale: reduce ? 1 : 3.2,
           autoAlpha: 0,
-          duration: reduce ? 0 : 0.7,
-          ease: "power2.inOut",
+          duration: reduce ? 0 : coarse ? 0.7 : 0.95,
+          ease: "power2.in",
           onComplete: () => setDone(true),
         });
       };
@@ -59,7 +69,7 @@ export default function Preloader() {
       const tl = gsap.timeline();
       tl.to(counter, {
         v: 100,
-        duration: 1.2,
+        duration: coarse ? 0.9 : 1.2,
         ease: "power2.inOut",
         onUpdate: () => apply(counter.v),
       }).add(finish, "+=0.1");
@@ -73,6 +83,7 @@ export default function Preloader() {
     <div
       ref={ref}
       className="preloader-overlay fixed inset-0 z-[100] flex flex-col justify-between bg-bg px-6 py-10 md:px-10"
+      style={{ transformOrigin: "50% 50%", willChange: "transform, opacity" }}
       aria-hidden="true"
     >
       <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.3em] text-text-dim">

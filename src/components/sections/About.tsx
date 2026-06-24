@@ -76,7 +76,7 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative scroll-mt-24 px-6 py-28 md:px-10 md:py-40"
+      className="relative scroll-mt-24 bg-bg px-6 py-28 md:px-10 md:py-40"
       aria-label="About"
     >
       <div className="mx-auto max-w-[1100px]">

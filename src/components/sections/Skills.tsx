@@ -20,7 +20,7 @@ function Plane({ plane, i, total }: { plane: SkillPlane; i: number; total: numbe
       {/* big faint domain index watermark */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -top-16 right-0 font-display text-[clamp(120px,22vw,300px)] leading-none text-text"
+        className="stack-watermark pointer-events-none absolute -top-16 right-0 font-display text-[clamp(120px,22vw,300px)] leading-none text-text"
         style={{ opacity: 0.04 }}
       >
         {String(i + 1).padStart(2, "0")}
@@ -107,15 +107,40 @@ export default function Skills() {
         },
       });
 
-      // Spacing > the per-plane span so only ONE plane is readable at a time
-      // (no ghost overlap), while still crossing through depth.
+      // Banking flight, not a slideshow: each plane approaches from a DIFFERENT
+      // offset (left/up, right/down, from below) and the camera banks toward it —
+      // lateral x + a little roll (rotationZ) on top of the depth push. The big
+      // index watermark drifts at a different rate (parallax), so the move reads
+      // as one continuous path through a space. At the hold every plane settles to
+      // dead-centre rest (x/y/roll = 0) so it stays readable. Spacing S keeps only
+      // ONE plane on screen at a time.
+      const APPROACH = [
+        { x: -380, y: -130, rz: -5, rx: 8 },
+        { x: 380, y: 130, rz: 5, rx: 8 },
+        { x: 0, y: 280, rz: 0, rx: 10 },
+      ];
+      const EXIT = [
+        { x: 300, y: 90, rz: 4 },
+        { x: -300, y: -90, rz: -4 },
+        { x: 0, y: -220, rz: 0 },
+      ];
       const S = 1.3;
       planes.forEach((el, i) => {
         const t0 = i * S;
-        gsap.set(el, { z: -1500, autoAlpha: 0, scale: 0.92, rotationX: 6 });
-        tl.to(el, { z: 0, autoAlpha: 1, scale: 1, rotationX: 0, ease: "power2.out", duration: 0.5 }, t0)
+        const a = APPROACH[i % APPROACH.length];
+        const e = EXIT[i % EXIT.length];
+        const wm = el.querySelector<HTMLElement>(".stack-watermark");
+
+        gsap.set(el, { z: -1500, x: a.x, y: a.y, autoAlpha: 0, scale: 0.9, rotationX: a.rx, rotationZ: a.rz });
+        tl.to(el, { z: 0, x: 0, y: 0, autoAlpha: 1, scale: 1, rotationX: 0, rotationZ: 0, ease: "power3.out", duration: 0.5 }, t0)
           .to(el, { z: 0, duration: 0.35 }, t0 + 0.5)
-          .to(el, { z: 820, autoAlpha: 0, scale: 1.08, rotationX: -5, ease: "power2.in", duration: 0.45 }, t0 + 0.85);
+          .to(el, { z: 820, x: e.x, y: e.y, autoAlpha: 0, scale: 1.08, rotationX: -4, rotationZ: e.rz, ease: "power2.in", duration: 0.45 }, t0 + 0.85);
+
+        if (wm) {
+          gsap.set(wm, { x: a.x * 0.5, y: a.y * 0.3 });
+          tl.to(wm, { x: 0, y: 0, ease: "power3.out", duration: 0.55 }, t0)
+            .to(wm, { x: -e.x * 0.6, y: -e.y * 0.4, ease: "power2.in", duration: 0.45 }, t0 + 0.85);
+        }
       });
     },
     { dependencies: [cinema, N], scope: sectionRef }
@@ -135,8 +160,12 @@ export default function Skills() {
             </span>
           </div>
 
+          {/* py-28 on each plane clears the absolute eyebrow (top) + closing line
+              (bottom). At ~1024px the lg:pl narrows the column, text wraps taller,
+              and a dead-centred plane used to ride up under the "04 — Stack"
+              eyebrow; centring inside the padded band keeps it clear. */}
           {skillPlanes.map((plane, i) => (
-            <div key={plane.id} className="absolute inset-0 grid place-items-center px-6 md:px-12 lg:pl-[176px]">
+            <div key={plane.id} className="absolute inset-0 grid place-items-center px-6 py-28 md:px-12 lg:pl-[176px]">
               <article
                 ref={(el) => {
                   if (el) planeRefs.current[i] = el;
