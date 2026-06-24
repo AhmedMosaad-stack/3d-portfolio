@@ -1,27 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Serif, Geist, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { GeistSans } from "geist/font/sans";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { profile } from "@/data/profile";
 
-const instrumentSerif = Instrument_Serif({
+// Fonts are SELF-HOSTED (woff2 committed under ./fonts, Geist via the official
+// `geist` package). next/font/google fetches font files from Google at BUILD
+// time, and that fetch intermittently fails on CI — it once broke a production
+// deploy ("Failed to fetch `Geist` from Google Fonts"). Self-hosting makes the
+// build deterministic: no network dependency. Variable names are unchanged, so
+// globals.css (--font-instrument-serif / --font-geist-sans / --font-jetbrains-mono)
+// keeps working as-is.
+
+const instrumentSerif = localFont({
   variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  src: [
+    { path: "./fonts/instrument-serif-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/instrument-serif-400-italic.woff2", weight: "400", style: "italic" },
+  ],
   display: "swap",
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
+const jetbrainsMono = localFont({
   variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
+  // Variable font: the single file covers the full weight axis.
+  src: [{ path: "./fonts/jetbrains-mono-variable.woff2", weight: "100 800", style: "normal" }],
   display: "swap",
 });
 
@@ -69,7 +74,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${geistSans.variable} ${jetbrainsMono.variable}`}
+      className={`${instrumentSerif.variable} ${GeistSans.variable} ${jetbrainsMono.variable}`}
     >
       <body>
         {children}
