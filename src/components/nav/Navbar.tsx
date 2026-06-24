@@ -3,7 +3,8 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { scrollToSection } from "@/hooks/useLenis";
-import { GithubIcon, LinkedinIcon } from "@/components/icons/BrandIcons";
+import { WhatsappIcon, LinkedinIcon } from "@/components/icons/BrandIcons";
+import { UniqueLogo } from "@/components/icons/UniqueLogo";
 import { profile } from "@/data/profile";
 
 const LINKS = [
@@ -59,10 +60,10 @@ export default function Navbar() {
           e.preventDefault();
           scrollToSection("top");
         }}
-        className="font-display text-xl tracking-tight text-text transition-colors hover:text-accent"
+        className="inline-flex items-center transition-opacity hover:opacity-80"
         aria-label={`${profile.name} — back to top`}
       >
-        AM<span className="text-accent">.</span>
+        <UniqueLogo width={40} height={40} />
       </a>
 
       <div className="flex items-center gap-1 md:gap-2">
@@ -82,13 +83,13 @@ export default function Navbar() {
         </ul>
 
         <a
-          href="https://github.com/AhmedMosaad-stack"
+          href="https://wa.me/201277843543"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="GitHub profile"
+          aria-label="WhatsApp"
           className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-accent hover:text-accent"
         >
-          <GithubIcon width={15} height={15} />
+          <WhatsappIcon width={15} height={15} />
         </a>
         <a
           href="https://www.linkedin.com/in/ahmed-mosaad-mohamed-690234364"

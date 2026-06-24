@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { Mail, MoveUpRight, Copy, Check } from "lucide-react";
 import {
+  WhatsappIcon,
   GithubIcon,
   LinkedinIcon,
   FacebookIcon,
@@ -11,6 +12,12 @@ import {
 import { profile } from "@/data/profile";
 
 const ROWS = [
+  {
+    label: "WhatsApp",
+    handle: "+20 127 784 3543",
+    href: "https://wa.me/201277843543",
+    Icon: WhatsappIcon,
+  },
   {
     label: "GitHub",
     handle: "AhmedMosaad-stack",
@@ -74,7 +81,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative scroll-mt-24 overflow-hidden border-t border-line px-6 py-28 md:px-10 md:py-40"
+      className="relative scroll-mt-24 overflow-hidden px-6 py-28 md:px-10 md:py-40"
       aria-label="Contact"
     >
       <div
@@ -88,7 +95,7 @@ export default function Contact() {
       <div className="relative mx-auto max-w-[1400px]">
         <div className="contact-eyebrow flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.25em] text-text-dim">
           <span className="h-px w-10 bg-text-dim/40" />
-          <span>(04) Contact — direct lines</span>
+          <span>05 — Contact</span>
         </div>
 
         <h2 className="contact-title mt-8 font-display text-[clamp(64px,15vw,240px)] font-normal leading-[0.92] tracking-[-0.04em] text-text">
